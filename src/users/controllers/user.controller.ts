@@ -11,7 +11,7 @@ import {
   UseFilters,
 } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { NotFoundExceptionFilterEntity } from '../entities/not-found-exception-filter.entuty';
+import { NotFoundExceptionFilterEntity } from '../entities/not-found-exception-filter.entity';
 import { UserService } from '../services/user.service';
 
 @Controller('users')
