@@ -12,8 +12,6 @@ import { UserService } from '../services/user.service';
 @Module({
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService],
-  imports: [CacheModule.register()],
 })
 export class UserModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

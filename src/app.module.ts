@@ -1,13 +1,24 @@
-import { CacheModule, Module } from '@nestjs/common';
+import {
+  CacheModule,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UserController } from './users/controllers/user.controller';
 import { User } from './users/entities/user.entity';
+import { ValidationUserMiddleware } from './users/middlewares/validation-user.middleware';
 import { UserModule } from './users/modules/user.module';
+import { UserService } from './users/services/user.service';
 
 @Module({
   imports: [
-    UserModule,
+    CacheModule.register({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -20,7 +31,14 @@ import { UserModule } from './users/modules/user.module';
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, UserController],
+  providers: [AppService, UserService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ValidationUserMiddleware).forRoutes({
+      path: 'users/:id',
+      method: RequestMethod.GET,
+    });
+  }
+}
