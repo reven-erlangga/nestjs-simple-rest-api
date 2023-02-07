@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/input/create-user.input';
 
 @Injectable()
 export class UserService {
@@ -8,6 +8,14 @@ export class UserService {
 
   async findAll() {
     return await this.dbService.user.findMany();
+  }
+
+  async find(id) {
+    return await this.dbService.user.findFirst({
+      where: {
+        id: id,
+      },
+    });
   }
 
   async createUser(data: CreateUserDto) {

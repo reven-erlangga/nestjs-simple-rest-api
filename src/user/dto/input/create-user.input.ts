@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { Validate, IsString, IsNotEmpty, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, Validate } from 'class-validator';
 
 export class CreateUserDto implements Prisma.userCreateInput {
   @IsEmail(

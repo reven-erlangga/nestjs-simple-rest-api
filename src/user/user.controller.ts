@@ -7,10 +7,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
+  Res,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { CreateUserDto } from './dto/input/create-user.input';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -18,14 +21,25 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get()
-  async index() {
-    return await this.userService.findAll();
+  async index(@Res() response: FastifyReply) {
+    const users = await this.userService.findAll();
+
+    response.send(users);
   }
 
   @UsePipes(ValidationPipe)
   @Post()
-  async create(@Body() body: CreateUserDto) {
-    return await this.userService.createUser(body);
+  async create(@Body() user: CreateUserDto, @Res() response: FastifyReply) {
+    await this.userService.createUser(user);
+
+    response.send(200);
+  }
+
+  @Get(':id')
+  async show(@Param('id', ParseIntPipe) id, @Res() response: FastifyReply) {
+    const user = await this.userService.find(id);
+
+    response.send(user);
   }
 
   @UsePipes(ValidationPipe)
