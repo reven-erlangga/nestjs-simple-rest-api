@@ -1,18 +1,9 @@
-import {
-  CacheModule,
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserController } from './users/controllers/user.controller';
-import { User } from './users/entities/user.entity';
-import { ValidationUserMiddleware } from './users/middlewares/validation-user.middleware';
-import { UserModule } from './users/modules/user.module';
-import { UserService } from './users/services/user.service';
+import { PrismaModule } from './prisma/prisma.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -29,16 +20,10 @@ import { UserService } from './users/services/user.service';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([User]),
+    PrismaModule,
+    UserModule,
   ],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ValidationUserMiddleware).forRoutes({
-      path: 'users/:id',
-      method: RequestMethod.GET,
-    });
-  }
-}
+export class AppModule {}
