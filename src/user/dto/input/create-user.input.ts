@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
-import { IsString, IsNotEmpty, IsEmail, Validate } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
 
-export class CreateUserDto implements Prisma.userCreateInput {
+export class CreateUserDto implements Prisma.UserCreateInput {
   @IsEmail(
     {},
     {
@@ -16,4 +16,10 @@ export class CreateUserDto implements Prisma.userCreateInput {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @IsNotEmpty()
+  hash: string;
+
+  @IsNotEmpty()
+  hashedRt: string;
 }
