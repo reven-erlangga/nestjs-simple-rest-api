@@ -7,7 +7,11 @@ export class UserService {
   constructor(private dbService: PrismaService) {}
 
   async findAll() {
-    return await this.dbService.user.findMany();
+    return await this.dbService.user.findMany({
+      include: {
+        posts: true,
+      },
+    });
   }
 
   async find(id) {
@@ -22,7 +26,7 @@ export class UserService {
     return await this.dbService.user.create({ data });
   }
 
-  async updateUser(id: number, data: any) {
+  async updateUser(id: string, data: any) {
     return await this.dbService.user.update({
       data,
       where: {
@@ -31,7 +35,7 @@ export class UserService {
     });
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     return await this.dbService.user.delete({
       where: {
         id: id,

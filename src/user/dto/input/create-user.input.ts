@@ -9,7 +9,7 @@ export class CreateUserDto implements Prisma.userCreateInput {
     },
   )
   @IsNotEmpty({
-    message: 'Email is required!',
+    message: 'Please insert your email!',
   })
   email: string;
 
