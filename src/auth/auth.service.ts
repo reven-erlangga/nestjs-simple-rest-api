@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as bcypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
+import { ForeignKeyMetadata } from 'typeorm/metadata/ForeignKeyMetadata';
 
 @Injectable()
 export class AuthService {
@@ -71,7 +72,51 @@ export class AuthService {
       },
     });
   }
-  //   signInLocal() {}
-  //   logout() {}
-  //   refreshTokens() {}
+
+  async signInLocal(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    if (!user) throw new ForbiddenException('Access denied');
+
+    const passwordMatches = await bcypt.compare(dto.password, user.hash);
+
+    if (!passwordMatches) throw new ForbiddenException('Access denied');
+
+    const tokens = await this.getTokens(user.id, user.email);
+
+    await this.updateRtHash(user.id, tokens.refresh_token);
+
+    return tokens;
+  }
+  async logout(userId: string) {
+    await this.prisma.user.updateMany({
+      where: {
+        id: userId,
+        hashedRt: {
+          not: null,
+        },
+      },
+      data: {
+        hashedRt: null,
+      },
+    });
+  }
+
+  async refreshTokens(userId: string, rt: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) throw new ForbiddenException('Access denied');
+
+    const rtMatches = await bcypt.compare(rt, user.hashedRt);
+
+    if (!rtMatches) throw new ForbiddenException('Access denied');
+  }
 }

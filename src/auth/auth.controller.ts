@@ -1,4 +1,15 @@
-import { Body, Controller, Post, Version } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Req,
+  Post,
+  UseGuards,
+  Version,
+} from '@nestjs/common';
+import { FastifyRequest } from 'fastify';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
@@ -9,22 +20,32 @@ export class AuthController {
 
   @Post('local/signup')
   @Version('1')
+  @HttpCode(HttpStatus.CREATED)
   signUpLocal(@Body() dto: AuthDto): Promise<Tokens> {
     return this.authService.signUpLocal(dto);
   }
 
-  //   @Post('/local/signin')
-  //   signInLocal() {
-  //     this.authService.signInLocal();
-  //   }
+  @Post('local/signin')
+  @HttpCode(HttpStatus.OK)
+  signInLocal(@Body() dto: AuthDto): Promise<Tokens> {
+    return this.authService.signInLocal(dto);
+  }
 
-  //   @Post('/logout')
-  //   logout() {
-  //     this.authService.logout();
-  //   }
+  @UseGuards(AuthGuard('jwt'))
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Req() req: FastifyRequest) {
+    console.log(req);
+    // const user = req.body.;
 
-  //   @Post('/refresh')
-  //   refreshTokens() {
-  //     this.authService.refreshTokens();
-  //   }
+    // return this.authService.logout(user['id']);
+  }
+
+  @UseGuards(AuthGuard('jwt-refresh'))
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refreshTokens(@Req() req: FastifyRequest) {
+    // const user = req.;
+    // this.authService.refreshTokens(user['id'], user['refreshToken']);
+  }
 }
