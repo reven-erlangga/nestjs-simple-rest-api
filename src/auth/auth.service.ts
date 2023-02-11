@@ -4,7 +4,6 @@ import { AuthDto } from './dto';
 import * as bcypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
-import { ForeignKeyMetadata } from 'typeorm/metadata/ForeignKeyMetadata';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +22,7 @@ export class AuthService {
         },
         {
           secret: 'at-secret',
-          expiresIn: 60 * 15,
+          expiresIn: 60 * 15 * 24,
         },
       ),
       this.jwtService.signAsync(
@@ -92,6 +91,7 @@ export class AuthService {
 
     return tokens;
   }
+
   async logout(userId: string) {
     await this.prisma.user.updateMany({
       where: {
@@ -118,5 +118,11 @@ export class AuthService {
     const rtMatches = await bcypt.compare(rt, user.hashedRt);
 
     if (!rtMatches) throw new ForbiddenException('Access denied');
+
+    const tokens = await this.getTokens(user.id, user.email);
+
+    await this.updateRtHash(user.id, tokens.refresh_token);
+
+    return tokens;
   }
 }
