@@ -22,7 +22,7 @@ export class AuthService {
         },
         {
           secret: 'at-secret',
-          expiresIn: 60 * 30 * 24,
+          expiresIn: 60 * 25 * 24,
         },
       ),
       this.jwtService.signAsync(
